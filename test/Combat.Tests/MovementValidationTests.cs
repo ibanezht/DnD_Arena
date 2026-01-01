@@ -115,18 +115,19 @@ public sealed class MovementValidationTests
     [Fact]
     public void RejectsDiagonalMoveWhenCornerIsBlocked()
     {
-        var state = MoveGoblinAway(
-            TestBuilders.NewBattle()
-                .WithBlocked(
-                    new GridPos(2, 1),
-                    new GridPos(1, 2),
-                    new GridPos(0, 1),
-                    new GridPos(1, 0)
-                )
-                .Build()
+        var state = MoveHeroTo(
+            MoveGoblinAway(
+                TestBuilders.NewBattle()
+                    .WithBlocked(
+                        new GridPos(1, 0),
+                        new GridPos(0, 1)
+                    )
+                    .Build()
+            ),
+            new GridPos(0, 0)
         );
         var engine = new BattleEngine(new SequenceRng());
-        var command = new MoveCommand(state.ActiveId, new GridPos(2, 2));
+        var command = new MoveCommand(state.ActiveId, new GridPos(1, 1));
 
         var result = engine.Resolve(state, command);
 
@@ -162,6 +163,26 @@ public sealed class MovementValidationTests
         var updatedOccupancy = new Dictionary<GridPos, Guid>(state.Grid.Occupancy);
         updatedOccupancy.Remove(goblin.Pos);
         updatedOccupancy[movedGoblin.Pos] = goblinId;
+
+        return state with
+        {
+            Combatants = updatedCombatants,
+            Grid = state.Grid with { Occupancy = updatedOccupancy }
+        };
+    }
+
+    private static BattleState MoveHeroTo(BattleState state, GridPos destination)
+    {
+        var hero = state.Combatants[state.ActiveId];
+        var movedHero = hero with { Pos = destination };
+
+        var updatedCombatants = new Dictionary<Guid, CombatantState>(state.Combatants)
+        {
+            [hero.Id] = movedHero
+        };
+        var updatedOccupancy = new Dictionary<GridPos, Guid>(state.Grid.Occupancy);
+        updatedOccupancy.Remove(hero.Pos);
+        updatedOccupancy[movedHero.Pos] = hero.Id;
 
         return state with
         {
