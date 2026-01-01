@@ -8,7 +8,7 @@ public sealed class ReproducibilityTests
     public void SameSeedAndCommandsProduceIdenticalEvents()
     {
         var state = TestBuilders.CreateDefaultState();
-        var seed = 12345;
+        const int seed = 12345;
         var engineA = new BattleEngine(new SeededRng(seed));
         var engineB = new BattleEngine(new SeededRng(seed));
         var commands = new ICommand[]
