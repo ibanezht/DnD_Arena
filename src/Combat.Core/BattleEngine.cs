@@ -110,7 +110,7 @@ public sealed class BattleEngine(IRng rng)
             return Reject(state, "Target is already dead.");
         }
 
-        var distance = ManhattanDistance(actor.Pos, target.Pos);
+        var distance = ChebyshevDistance(actor.Pos, target.Pos);
         var range = command.AttackType == AttackType.Melee ? 1 : actor.Stats.Range;
         if (distance > range)
         {
@@ -235,9 +235,10 @@ public sealed class BattleEngine(IRng rng)
         return total;
     }
 
-    private static int ManhattanDistance(GridPos from, GridPos to)
+    // Chebyshev distance (diagonal-friendly) matches D&D 5e grid range; movement stays cardinal-only.
+    private static int ChebyshevDistance(GridPos from, GridPos to)
     {
-        return Math.Abs(from.X - to.X) + Math.Abs(from.Y - to.Y);
+        return Math.Max(Math.Abs(from.X - to.X), Math.Abs(from.Y - to.Y));
     }
 
     private static bool TryFindPathLength(
