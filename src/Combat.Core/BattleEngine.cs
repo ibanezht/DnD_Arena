@@ -235,7 +235,7 @@ public sealed class BattleEngine(IRng rng)
         return total;
     }
 
-    // Chebyshev distance (diagonal-friendly) matches D&D 5e grid range; movement stays cardinal-only.
+    // Chebyshev distance (diagonal-friendly) matches D&D 5e grid range.
     private static int ChebyshevDistance(GridPos from, GridPos to)
     {
         return Math.Max(Math.Abs(from.X - to.X), Math.Abs(from.Y - to.Y));
@@ -280,6 +280,11 @@ public sealed class BattleEngine(IRng rng)
                     continue;
                 }
 
+                if (IsDiagonalBlockedByCorner(grid, current, next))
+                {
+                    continue;
+                }
+
                 if (grid.IsOccupied(next) && !next.Equals(goal))
                 {
                     continue;
@@ -305,12 +310,35 @@ public sealed class BattleEngine(IRng rng)
         return false;
     }
 
+    // Movement uses 8-way BFS with no-corner-cutting; range uses Chebyshev distance.
     private static IEnumerable<GridPos> GetNeighbors(GridPos pos)
     {
         yield return new GridPos(pos.X + 1, pos.Y);
         yield return new GridPos(pos.X - 1, pos.Y);
         yield return new GridPos(pos.X, pos.Y + 1);
         yield return new GridPos(pos.X, pos.Y - 1);
+        yield return new GridPos(pos.X + 1, pos.Y + 1);
+        yield return new GridPos(pos.X + 1, pos.Y - 1);
+        yield return new GridPos(pos.X - 1, pos.Y + 1);
+        yield return new GridPos(pos.X - 1, pos.Y - 1);
+    }
+
+    private static bool IsDiagonalBlockedByCorner(GridState grid, GridPos from, GridPos to)
+    {
+        var dx = to.X - from.X;
+        var dy = to.Y - from.Y;
+        if (Math.Abs(dx) != 1 || Math.Abs(dy) != 1)
+        {
+            return false;
+        }
+
+        var adjacentA = new GridPos(from.X + dx, from.Y);
+        var adjacentB = new GridPos(from.X, from.Y + dy);
+
+        var adjacentABlocked = grid.IsBlocked(adjacentA) || grid.IsOccupied(adjacentA);
+        var adjacentBBlocked = grid.IsBlocked(adjacentB) || grid.IsOccupied(adjacentB);
+
+        return adjacentABlocked && adjacentBBlocked;
     }
 
     private static int IndexOf(IReadOnlyList<Guid> list, Guid value)
