@@ -20,6 +20,14 @@ internal sealed class SequenceRng : IRng
             throw new InvalidOperationException("SequenceRng exhausted.");
         }
 
-        return _values.Dequeue();
+        var value = _values.Dequeue();
+        if (value < minInclusive || value >= maxExclusive)
+        {
+            throw new InvalidOperationException(
+                $"SequenceRng value {value} is out of range [{minInclusive}, {maxExclusive})."
+            );
+        }
+
+        return value;
     }
 }

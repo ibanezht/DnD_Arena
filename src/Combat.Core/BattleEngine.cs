@@ -41,6 +41,11 @@ public sealed class BattleEngine
             return Reject(state, rejection);
         }
 
+        if (state.HasActiveMovedThisTurn)
+        {
+            return Reject(state, "Actor has already moved this turn.");
+        }
+
         if (!state.Grid.IsInBounds(command.To))
         {
             return Reject(state, "Move out of bounds.");
@@ -82,7 +87,12 @@ public sealed class BattleEngine
         updatedOccupancy[command.To] = actor.Id;
 
         var updatedGrid = state.Grid with { Occupancy = updatedOccupancy };
-        var newState = state with { Combatants = updatedCombatants, Grid = updatedGrid };
+        var newState = state with
+        {
+            Combatants = updatedCombatants,
+            Grid = updatedGrid,
+            HasActiveMovedThisTurn = true,
+        };
         var events = new List<IEvent> { new Moved(actor.Id, actor.Pos, command.To) };
 
         return new ResolveResult(newState, events, null);
@@ -202,7 +212,12 @@ public sealed class BattleEngine
             break;
         }
 
-        var newState = state with { ActiveId = nextId, Round = round };
+        var newState = state with
+        {
+            ActiveId = nextId,
+            Round = round,
+            HasActiveMovedThisTurn = false,
+        };
 
         if (TryGetCombatResult(newState, out var result))
         {

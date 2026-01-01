@@ -117,6 +117,7 @@ internal sealed class BattleStateBuilder
         return new BattleState(
             _round,
             _activeId,
+            false,
             _initiativeOrder,
             _combatants,
             grid

@@ -59,4 +59,20 @@ public sealed class MovementValidationTests
         Assert.True(result.IsRejected);
         Assert.Same(state, result.NewState);
     }
+
+    [Fact]
+    public void RejectsSecondMoveInSameTurn()
+    {
+        var state = TestBuilders.CreateDefaultState();
+        var engine = new BattleEngine(new SequenceRng());
+        var firstMove = new MoveCommand(state.ActiveId, new GridPos(3, 1));
+        var secondMove = new MoveCommand(state.ActiveId, new GridPos(3, 2));
+
+        var firstResult = engine.Resolve(state, firstMove);
+        var secondResult = engine.Resolve(firstResult.NewState, secondMove);
+
+        Assert.False(firstResult.IsRejected);
+        Assert.True(secondResult.IsRejected);
+        Assert.Same(firstResult.NewState, secondResult.NewState);
+    }
 }
