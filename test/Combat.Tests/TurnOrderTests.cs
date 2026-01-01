@@ -1,6 +1,4 @@
-using System.Linq;
 using Combat.Core;
-using Xunit;
 
 namespace Combat.Tests;
 

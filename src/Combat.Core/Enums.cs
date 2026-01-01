@@ -3,17 +3,17 @@ namespace Combat.Core;
 public enum Faction
 {
     Player,
-    Enemy,
+    Enemy
 }
 
 public enum AttackType
 {
     Melee,
-    Ranged,
+    Ranged
 }
 
 public enum CombatResult
 {
     Win,
-    Lose,
+    Lose
 }

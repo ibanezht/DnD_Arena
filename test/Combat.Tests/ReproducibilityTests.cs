@@ -1,6 +1,4 @@
-using System.Collections.Generic;
 using Combat.Core;
-using Xunit;
 
 namespace Combat.Tests;
 
@@ -17,7 +15,7 @@ public sealed class ReproducibilityTests
         {
             new AttackCommand(state.ActiveId, state.InitiativeOrder[1], AttackType.Melee),
             new EndTurnCommand(state.ActiveId),
-            new AttackCommand(state.InitiativeOrder[1], state.ActiveId, AttackType.Melee),
+            new AttackCommand(state.InitiativeOrder[1], state.ActiveId, AttackType.Melee)
         };
 
         var eventsA = Execute(engineA, state, commands);

@@ -1,5 +1,3 @@
-using System;
-using System.Collections.Generic;
 using Combat.Core;
 
 namespace Combat.Tests;
@@ -19,13 +17,13 @@ internal static class TestBuilders
 
 internal sealed class BattleStateBuilder
 {
-    private readonly Dictionary<Guid, CombatantState> _combatants;
-    private readonly List<Guid> _initiativeOrder;
     private readonly HashSet<GridPos> _blocked;
-    private int _round;
+    private readonly Dictionary<Guid, CombatantState> _combatants;
+    private readonly int _height;
+    private readonly List<Guid> _initiativeOrder;
+    private readonly int _width;
     private Guid _activeId;
-    private int _width;
-    private int _height;
+    private int _round;
 
     public BattleStateBuilder()
     {
@@ -53,11 +51,11 @@ internal sealed class BattleStateBuilder
         _combatants = new Dictionary<Guid, CombatantState>
         {
             [heroId] = hero,
-            [goblinId] = goblin,
+            [goblinId] = goblin
         };
 
-        _initiativeOrder = new List<Guid> { heroId, goblinId };
-        _blocked = new HashSet<GridPos>();
+        _initiativeOrder = [heroId, goblinId];
+        _blocked = [];
         _round = 1;
         _activeId = heroId;
         _width = 10;

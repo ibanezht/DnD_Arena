@@ -4,14 +4,9 @@ using System.Linq;
 
 namespace Combat.Core;
 
-public sealed class BattleEngine
+public sealed class BattleEngine(IRng rng)
 {
-    private readonly IRng _rng;
-
-    public BattleEngine(IRng rng)
-    {
-        _rng = rng ?? throw new ArgumentNullException(nameof(rng));
-    }
+    private readonly IRng _rng = rng ?? throw new ArgumentNullException(nameof(rng));
 
     public ResolveResult Resolve(BattleState state, ICommand command)
     {
@@ -30,7 +25,7 @@ public sealed class BattleEngine
             MoveCommand move => ResolveMove(state, move),
             AttackCommand attack => ResolveAttack(state, attack),
             EndTurnCommand endTurn => ResolveEndTurn(state, endTurn),
-            _ => Reject(state, "Unknown command."),
+            _ => Reject(state, "Unknown command.")
         };
     }
 
@@ -79,7 +74,7 @@ public sealed class BattleEngine
         var updatedActor = actor with { Pos = command.To };
         var updatedCombatants = new Dictionary<Guid, CombatantState>(state.Combatants)
         {
-            [actor.Id] = updatedActor,
+            [actor.Id] = updatedActor
         };
 
         var updatedOccupancy = new Dictionary<GridPos, Guid>(state.Grid.Occupancy);
@@ -91,7 +86,7 @@ public sealed class BattleEngine
         {
             Combatants = updatedCombatants,
             Grid = updatedGrid,
-            HasActiveMovedThisTurn = true,
+            HasActiveMovedThisTurn = true
         };
         var events = new List<IEvent> { new Moved(actor.Id, actor.Pos, command.To) };
 
@@ -146,7 +141,7 @@ public sealed class BattleEngine
 
         var updatedCombatants = new Dictionary<Guid, CombatantState>(state.Combatants)
         {
-            [target.Id] = updatedTarget,
+            [target.Id] = updatedTarget
         };
 
         var updatedGrid = state.Grid;
@@ -187,7 +182,7 @@ public sealed class BattleEngine
         }
 
         var round = state.Round;
-        Guid nextId = actor.Id;
+        var nextId = actor.Id;
 
         for (var step = 1; step <= initiative.Count; step++)
         {
@@ -216,7 +211,7 @@ public sealed class BattleEngine
         {
             ActiveId = nextId,
             Round = round,
-            HasActiveMovedThisTurn = false,
+            HasActiveMovedThisTurn = false
         };
 
         if (TryGetCombatResult(newState, out var result))
@@ -262,7 +257,7 @@ public sealed class BattleEngine
         var queue = new Queue<GridPos>();
         var distances = new Dictionary<GridPos, int>
         {
-            [start] = 0,
+            [start] = 0
         };
 
         queue.Enqueue(start);
@@ -384,6 +379,6 @@ public sealed class BattleEngine
 
     private static ResolveResult Reject(BattleState state, string reason)
     {
-        return new ResolveResult(state, Array.Empty<IEvent>(), reason);
+        return new ResolveResult(state, [], reason);
     }
 }
